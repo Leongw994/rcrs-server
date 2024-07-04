@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scenario:scenario xmlns:scenario="urn:roborescue:map:scenario">
+  <scenario:refuge scenario:location="201365" scenario:bedCapacity="50"/>
+  <scenario:civilian scenario:location="191812"/>
+  <scenario:civilian scenario:location="202052"/>
+  <scenario:civilian scenario:location="195696"/>
+  <scenario:civilian scenario:location="191479"/>
+  <scenario:civilian scenario:location="201719"/>
+  <scenario:civilian scenario:location="201931"/>
+  <scenario:civilian scenario:location="190043"/>
+  <scenario:civilian scenario:location="196939"/>
+  <scenario:civilian scenario:location="201651"/>
+  <scenario:civilian scenario:location="195950"/>
+  <scenario:civilian scenario:location="197491"/>
+  <scenario:civilian scenario:location="195885"/>
+  <scenario:civilian scenario:location="193339"/>
+  <scenario:civilian scenario:location="200280"/>
+  <scenario:civilian scenario:location="202846"/>
+  <scenario:civilian scenario:location="202615"/>
+  <scenario:civilian scenario:location="191829"/>
+  <scenario:civilian scenario:location="187163"/>
+  <scenario:civilian scenario:location="189792"/>
+  <scenario:civilian scenario:location="204421"/>
+  <scenario:civilian scenario:location="202974"/>
+  <scenario:civilian scenario:location="199917"/>
+  <scenario:civilian scenario:location="196170"/>
+  <scenario:civilian scenario:location="197246"/>
+  <scenario:civilian scenario:location="189660"/>
+  <scenario:civilian scenario:location="204554"/>
+  <scenario:civilian scenario:location="200279"/>
+  <scenario:civilian scenario:location="197047"/>
+  <scenario:civilian scenario:location="187162"/>
+  <scenario:civilian scenario:location="200658"/>
+  <scenario:policeoffice scenario:location="196841"/>
+  <scenario:rescuerobot scenario:location="199009"/>
+  <scenario:rescuerobot scenario:location="194765"/>
+  <scenario:rescuerobot scenario:location="193413"/>
+  <scenario:rescuerobot scenario:location="193130"/>
+  <scenario:rescuerobot scenario:location="192386"/>
+  <scenario:rescuerobot scenario:location="196933"/>
+  <scenario:drone scenario:location="194520"/>
+  <scenario:drone scenario:location="189559"/>
+  <scenario:drone scenario:location="191399"/>
+  <scenario:drone scenario:location="191705"/>
+  <scenario:drone scenario:location="195047"/>
+  <scenario:drone scenario:location="187531"/>
+</scenario:scenario>

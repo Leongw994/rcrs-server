@@ -1,5 +1,6 @@
 package sample;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 import rescuecore2.components.AbstractAgent;
@@ -97,6 +98,10 @@ public final class SampleSearch {
     return breadthFirstSearch( start, Arrays.asList( goals ) );
   }
 
+  public List<EntityID> droneSearch1( EntityID start, EntityID... goals) {
+    return droneSearch( start, Arrays.asList( goals ));
+  }
+
 
   /**
    * Do a breadth first search from one location to the closest (in terms of
@@ -162,45 +167,54 @@ public final class SampleSearch {
   public List<EntityID> droneSearch( EntityID start, Collection<EntityID> goals) {
     List<EntityID> open = new LinkedList<EntityID>();
     Map<EntityID, EntityID> ancestors = new HashMap<EntityID, EntityID>();
+    open.add(start);
+    EntityID next = null;
+    boolean found = false;
+    ancestors.put( start, start );
 
-    return null;
-  }
-
-
-  private static class Node {
-    EntityID ID;
-    int cost;
-    int heuristic;
-    Node parent;
-
-    public Node(EntityID id, int cost, int heuristic, Node parent) {
-      this.ID = id;
-      this.cost = cost;
-      this.heuristic = heuristic;
-      this.parent = parent;
+    do {
+      next = open.remove(0);
+      if ( isGoal( next, goals ) ) {
+        found = true;
+        break;
+      }
+      Collection<EntityID> nbrs = graph.get(next);
+      if (nbrs.isEmpty()) {
+        continue;
+      }
+      for (EntityID neighbour : nbrs) {
+        if (isGoal(neighbour, goals)) {
+          ancestors.put(neighbour, next);
+          next = neighbour;
+          found = true;
+          break;
+        } else {
+          if (!ancestors.containsKey(neighbour)) {
+            if (buildingSet.contains(next) || !buildingSet.contains(neighbour)) {
+              open.add(neighbour);
+              ancestors.put(neighbour, next);
+            }
+//            open.add(neighbour);
+//            ancestors.put(neighbour, next);
+          }
+        }
+      }
+    } while (!found && !open.isEmpty());
+    if (!found) {
+      return null;
     }
+    //walk back from goal to start
+    EntityID cur = next;
+    List<EntityID> path = new LinkedList<EntityID>();
+    do {
+      path.add(0, cur);
+      cur = ancestors.get(cur);
+      if (cur == null) {
+        throw new RuntimeException("Found a node with no ancestors!");
+      }
+    } while (cur != start);
+    return path;
   }
-
-//
-//  public List<EntityID> aStarSearch( EntityID start, Collection<EntityID> goals) {
-//    // Define priority queue for open list
-//    PriorityQueue<Node> openList = new PriorityQueue<>(Comparator.comparingInt(node -> node.cost + node.heuristic));
-//    // Define set for closed list
-//    Set<EntityID> closedList = new HashSet<>();
-//    // initialise start node
-//    Node startNode = new Node(start, 0, calculateHeuristic());
-//    return null;
-//  }
-//
-//  // calculates the heuristic value (manhattan distance)
-//  private int calculateHeuristic(EntityID node, Collection<EntityID> goals, StandardWorldModel world) {
-//    int minDistance = Integer.MAX_VALUE;
-//    int nodeX = world.getEntity(node).getX();
-//    int nodeY;
-//
-//    return minDistance;
-//  }
-
 
   public List<EntityID> breadthFirstSearchForCivilian( EntityID start,
       Collection<EntityID> goals ) {
