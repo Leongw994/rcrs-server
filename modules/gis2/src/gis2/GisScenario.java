@@ -713,8 +713,8 @@ public class GisScenario implements rescuecore2.scenario.Scenario, CollapseSimCo
    * @param newLocations
    */
   public void setRescueRobots(Collection<Integer> newLocations) {
-    acLocations.clear();
-    acLocations.addAll(newLocations);
+    rrLocations.clear();
+    rrLocations.addAll(newLocations);
   }
 
   /**
@@ -723,8 +723,8 @@ public class GisScenario implements rescuecore2.scenario.Scenario, CollapseSimCo
    * @param newLocations
    */
   public void setDrones(Collection<Integer> newLocations) {
-    acLocations.clear();
-    acLocations.addAll(newLocations);
+    drLocations.clear();
+    drLocations.addAll(newLocations);
   }
 
   /**

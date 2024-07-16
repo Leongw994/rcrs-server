@@ -10,6 +10,7 @@ public abstract class MovingObject extends RealObject {
     private int hp=0;
     private int damage=0;
     private int buriedness=0;
+    private int battery=0;
     private int positionId=0;
     private int positionExtra=0;
     private RescueObject position;
@@ -101,6 +102,10 @@ public abstract class MovingObject extends RealObject {
 	
     public void setBuriedness(int buriedness){
         this.buriedness=buriedness;
+    }
+
+    public void setBattery(int battery) {
+        this.battery=battery;
     }
 	
     public String getCurrentAction() {

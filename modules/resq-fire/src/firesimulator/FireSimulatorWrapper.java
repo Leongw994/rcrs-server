@@ -1,6 +1,7 @@
 package firesimulator;
 
 import rescuecore2.config.NoSuchConfigOptionException;
+//import rescuecore2.standard.entities.RescueRobot;
 import rescuecore2.worldmodel.Entity;
 import rescuecore2.worldmodel.EntityID;
 import rescuecore2.worldmodel.ChangeSet;
@@ -26,6 +27,8 @@ import firesimulator.world.Civilian;
 import firesimulator.world.FireBrigade;
 import firesimulator.world.PoliceForce;
 import firesimulator.world.AmbulanceTeam;
+import firesimulator.world.RescueRobot;
+import firesimulator.world.Drone;
 import firesimulator.world.RescueObject;
 import firesimulator.world.MovingObject;
 import firesimulator.simulator.Simulator;
@@ -121,8 +124,10 @@ public class FireSimulatorWrapper extends StandardSimulator implements GUICompon
                 }
                 else if (r instanceof MovingObject && e instanceof rescuecore2.standard.entities.Human) {
                     mapHumanProperties((rescuecore2.standard.entities.Human)e, (MovingObject)r);
-                }else if(r instanceof Hydrant){
-                }else {
+                } else if (r instanceof MovingObject && e instanceof rescuecore2.standard.entities.Robot) {
+                    mapRobotProperties((rescuecore2.standard.entities.Robot)e, (MovingObject)r);
+                } else if(r instanceof Hydrant){
+                } else {
                     Logger.error("Don't know how to map " + r + " from " + e);
                 }
             }
@@ -243,6 +248,16 @@ public class FireSimulatorWrapper extends StandardSimulator implements GUICompon
             mapHumanProperties((rescuecore2.standard.entities.AmbulanceTeam)e, at);
             return at;
         }
+        if (e instanceof rescuecore2.standard.entities.RescueRobot) {
+            RescueRobot rr = new RescueRobot(id);
+            mapHumanProperties((rescuecore2.standard.entities.RescueRobot)e, rr);
+            return rr;
+        }
+        if (e instanceof rescuecore2.standard.entities.Drone) {
+            Drone dr = new Drone(id);
+            mapRobotProperties((rescuecore2.standard.entities.Robot)e, dr);
+            return dr;
+        }
         if (e instanceof rescuecore2.standard.entities.Road) {
             return null;
         }
@@ -317,6 +332,24 @@ public class FireSimulatorWrapper extends StandardSimulator implements GUICompon
             if (oldFB.isWaterDefined()) {
                 newFB.setInitialWaterQuantity(oldFB.getWater());
             }
+        }
+    }
+
+    public void mapRobotProperties(rescuecore2.standard.entities.Robot oldR, MovingObject newR) {
+        if (oldR.isHPDefined()) {
+            newR.setHp(oldR.getHP());
+        }
+        if (oldR.isBatteryDefined()) {
+            newR.setBattery(oldR.getBattery());
+        }
+        if (oldR.isPositionDefined()) {
+            newR.setPositionId(oldR.getPosition().getValue());
+        }
+        if (oldR.isXDefined()) {
+            newR.setX(oldR.getX());
+        }
+        if (oldR.isYDefined()) {
+            newR.setY(oldR.getY());
         }
     }
 

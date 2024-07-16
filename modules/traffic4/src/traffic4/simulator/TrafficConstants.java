@@ -19,12 +19,12 @@ public final class TrafficConstants {
     private static NumberGenerator<Double> nudge;
 
     // ground force constants
-    private static double GROUND_DISTANCE_CUTOFF = 3000;
-    private static double GROUND_FORCE_COEFFICIENT_A = 0.01;
-    private static double GROUND_F0RCE_COEFFICIENT_B = 0.7;
+//    private static double GROUND_DISTANCE_CUTOFF = 3000;
+//    private static double GROUND_FORCE_COEFFICIENT_A = 0.01;
+//    private static double GROUND_F0RCE_COEFFICIENT_B = 0.7;
 
     // Wall force constants
-    private static double WALL_DISTANCE_CUTOFF = 3000;
+    private static double WALL_DISTANCE_CUTOFF = 2000;
     private static double WALL_FORCE_COEFFICIENT_A = 0.01;
     private static double WALL_FORCE_COEFFICIENT_B = 0.7;
 
@@ -45,9 +45,9 @@ public final class TrafficConstants {
         WALL_DISTANCE_CUTOFF = config.getFloatValue("traffic4.wall.distance.cutoff", WALL_DISTANCE_CUTOFF);
         WALL_FORCE_COEFFICIENT_A = config.getFloatValue("traffic4.wall.force.coefficient.A", WALL_FORCE_COEFFICIENT_A);
         WALL_FORCE_COEFFICIENT_B = config.getFloatValue("traffic4.wall.force.coefficient.B", WALL_FORCE_COEFFICIENT_B);
-        GROUND_DISTANCE_CUTOFF = config.getFloatValue("traffic4.ground.distance.cutoff", GROUND_DISTANCE_CUTOFF);
-        GROUND_F0RCE_COEFFICIENT_B = config.getFloatValue("traffic4.ground.force.coefficient.b", GROUND_F0RCE_COEFFICIENT_B);
-        GROUND_FORCE_COEFFICIENT_A = config.getFloatValue("traffic4.ground.force.coefficient.a", GROUND_FORCE_COEFFICIENT_A);
+//        GROUND_DISTANCE_CUTOFF = config.getFloatValue("traffic4.ground.distance.cutoff", GROUND_DISTANCE_CUTOFF);
+//        GROUND_F0RCE_COEFFICIENT_B = config.getFloatValue("traffic4.ground.force.coefficient.b", GROUND_F0RCE_COEFFICIENT_B);
+//        GROUND_FORCE_COEFFICIENT_A = config.getFloatValue("traffic4.ground.force.coefficient.a", GROUND_FORCE_COEFFICIENT_A);
         NUDGE_MAGNITUDE = config.getFloatValue("traffic4.nudge-magnitude", NUDGE_MAGNITUDE);
         nudge = new ContinuousUniformGenerator(-NUDGE_MAGNITUDE, NUDGE_MAGNITUDE, config.getRandom());
     }
