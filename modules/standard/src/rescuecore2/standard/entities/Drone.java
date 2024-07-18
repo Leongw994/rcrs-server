@@ -19,8 +19,8 @@ public class Drone extends /*Human*/ Robot {
      */
     public Drone(EntityID id) {
         super(id);
-        height = new IntProperty(StandardPropertyURN.HEIGHT);
-        registerProperties(height);
+//        height = new IntProperty(StandardPropertyURN.HEIGHT);
+//        registerProperties(height);
     }
 
     /**
@@ -30,7 +30,7 @@ public class Drone extends /*Human*/ Robot {
      */
     public Drone(Drone other) {
         super(other);
-        height = new IntProperty(other.height);
+//        height = new IntProperty(other.height);
     }
 
     @Override

@@ -34,8 +34,7 @@ public abstract class Human extends StandardEntity {
 
 
   /**
-   * Construct a Human object with entirely undefined property values.
-   *
+   * Construct a Human object with entirely undefined property values.*
    * @param id
    *          The ID of this entity.
    */
