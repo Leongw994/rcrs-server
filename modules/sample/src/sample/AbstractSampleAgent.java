@@ -127,4 +127,31 @@ public abstract class AbstractSampleAgent<E extends StandardEntity>
     return result;
   }
 
+  protected List<EntityID> randomFly() {
+    List<EntityID> result = new ArrayList<EntityID>( RANDOM_WALK_LENGTH );
+    Set<EntityID> seen = new HashSet<EntityID>();
+    EntityID current = ( (Robot) me() ).getPosition();
+    for ( int i = 0; i < RANDOM_WALK_LENGTH; ++i ) {
+      result.add( current );
+      seen.add( current );
+      List<EntityID> possible = new ArrayList<EntityID>(
+              neighbours.get( current ) );
+      Collections.shuffle( possible, random );
+      boolean found = false;
+      for ( EntityID next : possible ) {
+        if ( seen.contains( next ) ) {
+          continue;
+        }
+        current = next;
+        found = true;
+        break;
+      }
+      if ( !found ) {
+        // We reached a dead-end.
+        break;
+      }
+    }
+    return result;
+  }
+
 }
