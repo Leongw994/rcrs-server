@@ -10,7 +10,5 @@
   <scenario:rescuerobot scenario:location="268"/>
   <scenario:rescuerobot scenario:location="971"/>
   <scenario:rescuerobot scenario:location="968"/>
-  <scenario:drone scenario:location="262"/>
-  <scenario:drone scenario:location="976"/>
-  <scenario:drone scenario:location="251"/>
+  <scenario:drone scenario:location="254"/>
 </scenario:scenario>

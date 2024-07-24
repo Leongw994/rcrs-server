@@ -3,12 +3,11 @@
 <scenario:scenario xmlns:scenario="urn:roborescue:map:scenario">
   <scenario:refuge scenario:location="70145" scenario:bedCapacity="6"/>
   <scenario:refuge scenario:location="61940" scenario:bedCapacity="6"/>
-  <scenario:civilian scenario:location="68648"/>
-  <scenario:civilian scenario:location="39503"/>
   <scenario:civilian scenario:location="37083"/>
-  <scenario:civilian scenario:location="37357"/>
-  <scenario:civilian scenario:location="38415"/>
   <scenario:civilian scenario:location="64089"/>
+  <scenario:civilian scenario:location="37083"/>
+  <scenario:civilian scenario:location="37083"/>
+  <scenario:civilian scenario:location="37083"/>
   <scenario:policeforce scenario:location="976"/>
   <scenario:policeforce scenario:location="7736"/>
   <scenario:policeforce scenario:location="34568"/>
@@ -22,10 +21,5 @@
   <scenario:rescuerobot scenario:location="27089"/>
   <scenario:rescuerobot scenario:location="1244"/>
   <scenario:rescuerobot scenario:location="28205"/>
-  <scenario:drone scenario:location="10118"/>
-  <scenario:drone scenario:location="33929"/>
-  <scenario:drone scenario:location="27935"/>
-  <scenario:drone scenario:location="53713"/>
-  <scenario:drone scenario:location="22598"/>
-  <scenario:drone scenario:location="15632"/>
+  <scenario:drone scenario:location="37083"/>
 </scenario:scenario>

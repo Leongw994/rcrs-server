@@ -3,6 +3,7 @@ package traffic4.simulator;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -95,7 +96,7 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
             //convertBlockade((Blockade) next);
             //}
             if (next instanceof Robot) {
-                convertDrone((Robot) next, agentVelocityGenerator, civilianVelocityGenerator);
+                convertDrone((Robot) next, agentVelocityGenerator/*, civilianVelocityGenerator*/);
             }
         }
         //    model.addWorldModelListener(new WorldModelListener<StandardEntity>() {
@@ -218,7 +219,8 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
                 //            }
                 //          }
                 //          break;
-                //        case ROAD:
+                //unblocked
+                        case ROAD:
                 //        case HYDRANT:
                 //          if (entity == null)
                 //            continue;
@@ -263,8 +265,8 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         manager.register(new TrafficArea(area));
     }
 
-    private void convertDrone(Robot r, NumberGenerator<Double> agentVelocityGenerator,
-                              NumberGenerator<Double> civilianVelocityGenerator) {
+    private void convertDrone(Robot r, NumberGenerator<Double> agentVelocityGenerator
+                              /*NumberGenerator<Double> civilianVelocityGenerator*/) {
         double radius = 0;
         double velocityLimit = 0;
         if (r instanceof Drone) {
@@ -280,7 +282,7 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
 
     private void handleFly(AKFly fly) {
         Robot robot = (Robot) model.getEntity(fly.getAgentID());
-        TrafficAgent agent = manager.getTrafficAgent(robot);
+        traffic4.objects.TrafficAgent agent = manager.getTrafficAgent(robot);
         EntityID current = robot.getPosition();
         if (current == null) {
             Logger.warn("Rejecting move: Agent position is not defined");
@@ -293,13 +295,14 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         }
         Area currentArea = (Area) currentEntity;
         List<EntityID> list = fly.getPath();
-        List<PathElement> steps = new ArrayList<PathElement>();
+        List<traffic4.simulator.PathElement> steps = new ArrayList<traffic4.simulator.PathElement>();
         Edge lastEdge = null;
         /**
          * Check that all elements refer to Area instances and build the list of target
          * points Target points between areas are the midpoint of the shared edge
          */
-        for (EntityID next : list) {
+        for (Iterator<EntityID> it = list.iterator(); it.hasNext();) {
+            EntityID next = it.next();
             if (next.equals(current)) {
                 continue;
             }
@@ -331,7 +334,7 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
             Logger.warn("Rejecting move: Path is empty");
             return;
         }
-        steps.add(new PathElement(current, null, new Point2D(targetX, targetY)));
+        steps.add(new traffic4.simulator.PathElement(current, null, new Point2D(targetX, targetY)));
         agent.setPath1(steps);
     }
 

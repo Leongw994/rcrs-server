@@ -115,11 +115,11 @@ public class SampleCivilian extends AbstractSampleAgent<Civilian> {
       say(HELP, time);
     }
 
-    LOG.info("Calling for help");
-    int x = me().getX();
-    int y = me().getY();
-    String message = String.format("Help %d %d", x, y);
-    sendSpeak(time, 1, message.getBytes());
+//    LOG.info("Calling for help");
+//    int x = me().getX();
+//    int y = me().getY();
+//    String message = String.format("Help %d %d", x, y);
+//    sendSpeak(time, 1, message.getBytes());
 
     if (damage == 0 && buriedness == 0) {
       // Run for the refuge
