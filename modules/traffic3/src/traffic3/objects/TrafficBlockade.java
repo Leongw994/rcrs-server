@@ -12,6 +12,7 @@ import rescuecore2.worldmodel.Property;
 import rescuecore2.worldmodel.EntityListener;
 
 import rescuecore2.standard.entities.Blockade;
+import traffic3.objects.TrafficArea;
 
 /**
    This class wraps a Blockade object with some extra information.

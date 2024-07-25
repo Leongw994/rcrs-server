@@ -40,12 +40,13 @@ import traffic3.manager.TrafficManager;
 
 import rescuecore2.misc.gui.ScreenTransform;
 import rescuecore2.misc.gui.PanZoomListener;
-import rescuecore2.misc.gui.ShapeDebugFrame.Line2DShapeInfo;
 import rescuecore2.misc.geometry.Line2D;
 import rescuecore2.misc.geometry.Point2D;
 import rescuecore2.log.Logger;
 
 import rescuecore2.standard.entities.Edge;
+import traffic3.simulator.PathElement;
+import traffic3.simulator.TrafficSimulator;
 
 /**
  * A GUI for watching the traffic simulator.

@@ -167,6 +167,7 @@ public class LineOfSightPerception implements Perception, GUIComponent {
                 case BLOCKADE:
                     addBlockadeProperties((Blockade)next, result);
                     break;
+                case FIRE_DRONE:
                 case DRONE:
 //                    if (next == agentEntity) {
 //                        addSelfProperties((Human) next, result);

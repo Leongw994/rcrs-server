@@ -5,11 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
 import java.util.Collections;
-import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
-
-import org.apache.log4j.NDC;
 
 //import rescuecore2.log.Logger;
 
@@ -17,11 +14,11 @@ import rescuecore2.misc.geometry.GeometryTools2D;
 import rescuecore2.misc.geometry.Line2D;
 import rescuecore2.misc.geometry.Point2D;
 import rescuecore2.misc.geometry.Vector2D;
-import rescuecore2.misc.gui.ShapeDebugFrame;
 
 import rescuecore2.standard.entities.Area;
 import rescuecore2.standard.entities.Edge;
-import traffic3.simulator.TrafficSimulator;
+import traffic3.objects.TrafficAgent;
+import traffic3.objects.TrafficBlockade;
 
 import com.infomatiq.jsi.Rectangle;
 

@@ -24,6 +24,7 @@ public class AgentOverlay implements Overlay {
   private static final Color AMBULANCE_TEAM_COLOUR = Color.WHITE;
   private static final Color RESCUE_ROBOT_COLOUR = Color.MAGENTA;
   private static final Color DRONE_COLOUR = Color.CYAN;
+  private static final Color FIRE_DRONE_COLOUR = new Color(53, 217, 174);
   private static final int OFFSET = 7;
   private ScenarioEditor editor;
 
@@ -76,6 +77,12 @@ public class AgentOverlay implements Overlay {
         return 0;
       }
     };
+    Map<Integer, Integer> fds = new LazyMap<Integer, Integer>() {
+      @Override
+      public Integer createValue() {
+        return 0;
+      }
+    };
     for (int next : editor.getScenario().getCivilians()) {
       civs.put(next, civs.get(next) + 1);
     }
@@ -93,6 +100,9 @@ public class AgentOverlay implements Overlay {
     }
     for (int next : editor.getScenario().getDrones()) {
       drs.put(next, drs.get(next) + 1);
+    }
+    for (int next : editor.getScenario().getFireDrones()) {
+      fds.put(next, fds.get(next) + 1);
     }
     // Now draw them
     for (Map.Entry<Integer, Integer> next : civs.entrySet()) {
@@ -155,6 +165,14 @@ public class AgentOverlay implements Overlay {
       int x = transform.xToScreen(shape.getCentreX()) - OFFSET;
       int y = transform.yToScreen(shape.getCentreY());
       paint(g, x, y, DRONE_COLOUR);
+      g.drawString(count + "", x, y);
+    }
+    for (Map.Entry<Integer, Integer> next : fds.entrySet()) {
+      GMLShape shape = editor.getMap().getShape(next.getKey());
+      int count = next.getValue();
+      int x = transform.xToScreen(shape.getCentreX()) - OFFSET;
+      int y = transform.yToScreen(shape.getCentreY());
+      paint(g, x, y, FIRE_DRONE_COLOUR);
       g.drawString(count + "", x, y);
     }
   }

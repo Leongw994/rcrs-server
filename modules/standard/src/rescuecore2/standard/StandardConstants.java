@@ -28,5 +28,8 @@ public final class StandardConstants {
     /**Config key for the number of drones in the scenario*/
     public static final String DRONE_COUNT_KEY = "scenario.agents.dr";
 
+    /**Config key for the number of fire drones in the scenario*/
+    public static final String FIRE_DRONE_COUNT_KEY = "scenario.agents.dr";
+
     private StandardConstants() {}
 }

@@ -689,6 +689,10 @@ public class ScenarioEditor extends JPanel {
             toolbarGroup);
     addTool(new RemoveDroneTool(this), menu, toolbar, menuGroup,
             toolbarGroup);
+    addTool(new PlaceFireDroneTool(this), menu, toolbar, menuGroup,
+            toolbarGroup);
+    addTool(new RemoveFireDroneTool(this), menu, toolbar, menuGroup,
+            toolbarGroup);
   }
 
 
@@ -804,6 +808,11 @@ public class ScenarioEditor extends JPanel {
         valid = false;
       }
     }
+    for (int id : newScenario.getFireDrones()) {
+      if (newMap.getShape(id) == null) {
+        valid = false;
+      }
+    }
     return valid;
   }
 
@@ -823,6 +832,7 @@ public class ScenarioEditor extends JPanel {
             + scenario.getPoliceForces().size() + " pf, "
             + scenario.getRescueRobots().size() + " rr, "
             + scenario.getDrones().size() + "dr, "
+            + scenario.getFireDrones().size() + "fd, "
             + scenario.getPoliceOffices().size() + " po, "
             + scenario.getAmbulanceTeams().size() + " at, "
             + scenario.getAmbulanceCentres().size() + " ac");

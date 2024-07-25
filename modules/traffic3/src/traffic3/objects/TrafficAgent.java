@@ -18,6 +18,8 @@ import rescuecore2.standard.entities.Civilian;
 import rescuecore2.standard.entities.Human;
 import rescuecore2.standard.entities.Road;
 import traffic3.manager.TrafficManager;
+import traffic3.objects.TrafficArea;
+import traffic3.objects.TrafficBlockade;
 import traffic3.simulator.PathElement;
 import traffic3.simulator.TrafficConstants;
 

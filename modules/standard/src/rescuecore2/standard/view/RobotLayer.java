@@ -46,6 +46,7 @@ public class RobotLayer extends StandardEntityViewLayer<Robot> {
     private static RobotSorter ROBOT_SORTER = null;
 
     private static final Color DRONE_COLOUR = Color.CYAN;
+    private static final Color FIRE_DRONE_COLOUR = new Color(53, 217, 174);
     private static final Color DEAD_COLOUR = Color.BLACK;
 
     private int iconSize;
@@ -147,6 +148,8 @@ public class RobotLayer extends StandardEntityViewLayer<Robot> {
         switch (r.getStandardURN()) {
             case DRONE:
                 return DRONE_COLOUR;
+            case FIRE_DRONE:
+                return FIRE_DRONE_COLOUR;
             default:
                 throw new IllegalArgumentException("Dont know how to draw robot of type " + r.getStandardURN());
         }

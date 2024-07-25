@@ -38,6 +38,10 @@ import traffic3.manager.TrafficManager;
 import traffic3.objects.TrafficAgent;
 import traffic3.objects.TrafficArea;
 import traffic3.objects.TrafficBlockade;
+import traffic3.simulator.Dijkstra;
+import traffic3.simulator.PathElement;
+import traffic3.simulator.TrafficConstants;
+import traffic3.simulator.TrafficSimulatorGUI;
 
 /**
  * The Area model traffic simulator.
@@ -377,7 +381,7 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
   }
 
   private Collection<? extends PathElement> getPathElements(Human human, Area lastArea, Edge lastEdge, Area nextArea,
-      Edge nextEdge) {
+                                                                               Edge nextEdge) {
     if (human.getID().getValue() == 204623396) {
       System.out.println(
           "lastArea=" + lastArea + " lastEdge=" + lastEdge + " nextArea=" + nextArea + " nextEdge=" + nextEdge);
@@ -442,7 +446,7 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
   }
 
   private Collection<? extends PathElement> getPathElements2(Human human, Area lastArea, Edge lastEdge, Area nextArea,
-      Edge nextEdge) {
+                                                                                Edge nextEdge) {
     Collection<? extends PathElement> originalPaths = getPathElements(human, lastArea, lastEdge, nextArea, nextEdge);
     if (isOriginalPathOk(originalPaths))
       return originalPaths;

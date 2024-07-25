@@ -53,6 +53,8 @@ public class RandomScenarioGenerator {
   private int maxACs;
   private int maxDRs;
   private int minDRs;
+  private int maxFDs;
+  private int minFDs;
   private int maxRRs;
   private int minRRs;
   private int minFires;
@@ -80,6 +82,8 @@ public class RandomScenarioGenerator {
     maxACs = DEFAULT_MAX_CENTRES;
     maxDRs= DEFAULT_MAX_PLATOONS;
     minDRs = DEFAULT_MIN_PLATOONS;
+    maxFDs = DEFAULT_MAX_PLATOONS;
+    minFDs = DEFAULT_MIN_PLATOONS;
     maxRRs = DEFAULT_MAX_PLATOONS;
     minRRs = DEFAULT_MIN_PLATOONS;
     minFires = DEFAULT_MIN_FIRES;
@@ -160,6 +164,11 @@ public class RandomScenarioGenerator {
         int max = Integer.parseInt(args[i + 2]);
         i += 2;
         generator.setRescueRobots(min, max);
+      } else if ("-fd".equals(args[i])) {
+        int min = Integer.parseInt(args[i + 1]);
+        int max = Integer.parseInt(args[i + 2]);
+        i += 2;
+        generator.setFireDrones(min, max);
       }
       
     }
@@ -196,6 +205,7 @@ public class RandomScenarioGenerator {
     System.out.println("-ac\tmin max\tSet the minimum and maximum number of ambulance centers");
     System.out.println("-rr\tmin max\tSet the minimum and maximum number of rescue robots");
     System.out.println("-dr\tmin max\tSet the minimum and maximum number of drones");
+    System.out.println("-fd\tmin max\tSet the minimum and maximum number of fire drones");
     System.out.println("-refuge\tmin max\tSet the minimum and maximum number of refuges");
     System.out.println("-fire\tmin max\tSet the minimum and maximum number of fires");
   }
@@ -310,6 +320,17 @@ public class RandomScenarioGenerator {
     maxDRs = max;
   }
 
+  /**
+   * Set the minimum and maximum number of fire drones.
+   *
+   * @param min The new minimum
+   * @param max The new maximum
+   */
+  public void setFireDrones(int min, int max) {
+    minFDs = min;
+    maxFDs = max;
+  }
+
    /**
    * Set the minimum and maximum number of rescue robots.
    * 
@@ -340,6 +361,7 @@ public class RandomScenarioGenerator {
     int ac = random.nextInt(maxACs - minACs + 1) + minACs;
     int rr = random.nextInt(maxRRs - minRRs + 1) + minRRs;
     int dr = random.nextInt(maxDRs - minDRs + 1) + minDRs;
+    int fd = random.nextInt(maxFDs - minFDs + 1) + minFDs;
     int fire = random.nextInt(maxFires - minFires + 1) + minFires;
     int refuge = random.nextInt(maxRefuges - minRefuges + 1) + minRefuges;
     List<GMLBuilding> buildings = new ArrayList<GMLBuilding>(map.getBuildings());
@@ -348,7 +370,7 @@ public class RandomScenarioGenerator {
     placeRefuges(it, result, refuge);
     placeCentres(it, result, fs, po, ac);
     placeFires(it, result, fire);
-    placeAgents(map, result, random, fb, pf, at, civ, rr, dr);
+    placeAgents(map, result, random, fb, pf, at, civ, rr, dr, fd);
     return result;
   }
 
@@ -377,7 +399,7 @@ public class RandomScenarioGenerator {
   }
 
   private void placeAgents(GMLMap map, GisScenario result, Random random, int fire, int police, int ambulance,
-      int civ, int robots, int drone) {
+      int civ, int robots, int drone, int firedrones) {
     List<GMLShape> all = new ArrayList<GMLShape>(map.getAllShapes());
     List<GMLBuilding> buildings = new ArrayList<GMLBuilding>(map.getBuildings());
     for (int i = 0; i < fire; ++i) {
@@ -403,6 +425,10 @@ public class RandomScenarioGenerator {
     for (int i = 0; i < robots; i++) {
       int id = all.get(random.nextInt(all.size())).getID();
       result.addDrone(id);
+    }
+    for (int i = 0; i < firedrones; i++) {
+      int id = all.get(random.nextInt(all.size())).getID();
+      result.addFireDrone(id);
     }
   }
 }

@@ -34,6 +34,7 @@ public class StandardCommunicationModel extends AbstractCommunicationModel {
     private int acMax;
     private int drMax;
     private int rrMax;
+    private int fdMax;
     private Map<EntityID, Integer> uttered;
     private Map<EntityID, Integer> heard;
 
@@ -72,6 +73,7 @@ public class StandardCommunicationModel extends AbstractCommunicationModel {
         poMax = world.getEntitiesOfType(StandardEntityURN.POLICE_FORCE).size() * 2;
         drMax = world.getEntitiesOfType(StandardEntityURN.DRONE).size() * 2;
         rrMax = world.getEntitiesOfType(StandardEntityURN.RESCUE_ROBOT).size() * 2;
+        fdMax = world.getEntitiesOfType(StandardEntityURN.FIRE_DRONE).size() * 2;
     }
 
     @Override
@@ -117,7 +119,9 @@ public class StandardCommunicationModel extends AbstractCommunicationModel {
                                                                StandardEntityURN.AMBULANCE_CENTRE,
                                                                StandardEntityURN.POLICE_FORCE,
                                                                StandardEntityURN.DRONE,
-                                                               StandardEntityURN.POLICE_OFFICE, StandardEntityURN.RESCUE_ROBOT)) {
+                                                               StandardEntityURN.POLICE_OFFICE,
+                                                               StandardEntityURN.RESCUE_ROBOT,
+                                                               StandardEntityURN.FIRE_DRONE)) {
             int h = heard.get(receiver.getID());
             if (h >= getMessageMax(receiver)) {
                 continue;
@@ -154,6 +158,7 @@ public class StandardCommunicationModel extends AbstractCommunicationModel {
                                                                StandardEntityURN.POLICE_FORCE,
                                                                StandardEntityURN.DRONE,
                                                                StandardEntityURN.RESCUE_ROBOT,
+                                                               StandardEntityURN.FIRE_DRONE,
                                                                StandardEntityURN.POLICE_OFFICE)) {
             int h = heard.get(receiver.getID());
             if (h >= getMessageMax(receiver)) {
@@ -217,7 +222,8 @@ public class StandardCommunicationModel extends AbstractCommunicationModel {
         if (receiver instanceof Drone) {
             return sender instanceof PoliceOffice
                 || sender instanceof RescueRobot
-                || sender instanceof Drone;
+                || sender instanceof Drone
+                || sender instanceof FireDrone;
         }
         if (receiver instanceof RescueRobot) {
             return sender instanceof PoliceOffice

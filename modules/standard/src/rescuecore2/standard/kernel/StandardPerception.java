@@ -190,6 +190,7 @@ public class StandardPerception implements Perception, GUIComponent {
                 addHumanProperties((Human) next, result);
               }
               break;
+            case FIRE_DRONE:
             case DRONE:
 //              if (next == agentEntity) {
 //                addSelfRProperties((Drone) next, result);

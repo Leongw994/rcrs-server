@@ -26,6 +26,7 @@ public class PlaceAgentsFunction extends AbstractFunction {
   private static final int TYPE_CIVILIAN = 3;
   private static final int TYPE_DRONE = 4;
   private static final int TYPE_RESCUE_ROBOT = 5;
+  private static final int TYPE_FIRE_DRONE = 6;
 
   private Random random;
 
@@ -48,7 +49,7 @@ public class PlaceAgentsFunction extends AbstractFunction {
   public void execute() {
     JPanel panel = new JPanel(new GridLayout(3, 2));
     JTextField numberField = new JTextField("1");
-    JComboBox<String> typeCombo = new JComboBox<String>(new String[] { "Fire", "Police", "Ambulance", "Civilian", "Drone", "Rescue Robot" });
+    JComboBox<String> typeCombo = new JComboBox<String>(new String[] { "Fire", "Police", "Ambulance", "Civilian", "Drone", "Rescue Robot", "Fire Drone" });
 
     JCheckBox buildingBox = new JCheckBox("In buildings?", false);
     JCheckBox roadBox = new JCheckBox("In Roads?", true);
@@ -117,6 +118,10 @@ public class PlaceAgentsFunction extends AbstractFunction {
           s.addRescueRobot(id);
         }
         break;
+      case TYPE_FIRE_DRONE:
+        for (int id: ids) {
+          s.addFireDrone(id);
+        }
       default:
         throw new IllegalArgumentException("Unexpected type: " + type);
     }

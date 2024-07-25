@@ -43,6 +43,7 @@ public class StandardAgentRegistrar implements AgentRegistrar {
         VISIBLE_CONFIG_OPTIONS.add(StandardConstants.POLICE_OFFICE_COUNT_KEY.replace(".", "\\."));
         VISIBLE_CONFIG_OPTIONS.add(StandardConstants.RESCUE_ROBOT_COUNT_KEY.replace(".", "\\."));
         VISIBLE_CONFIG_OPTIONS.add(StandardConstants.DRONE_COUNT_KEY.replace(".", "\\."));
+        VISIBLE_CONFIG_OPTIONS.add(StandardConstants.FIRE_DRONE_COUNT_KEY.replace(".", "\\."));
         VISIBLE_CONFIG_OPTIONS.add("comms\\.channels\\.count");
         VISIBLE_CONFIG_OPTIONS.add("comms\\.channels\\.max\\.platoon");
         VISIBLE_CONFIG_OPTIONS.add("comms\\.channels\\.max\\.centre");
@@ -77,6 +78,8 @@ public class StandardAgentRegistrar implements AgentRegistrar {
         agentConfig.setIntValue(StandardConstants.POLICE_OFFICE_COUNT_KEY, model.getEntitiesOfType(StandardEntityURN.POLICE_OFFICE).size());
         agentConfig.setIntValue(StandardConstants.RESCUE_ROBOT_COUNT_KEY, model.getEntitiesOfType(StandardEntityURN.RESCUE_ROBOT).size());
         agentConfig.setIntValue(StandardConstants.DRONE_COUNT_KEY, model.getEntitiesOfType(StandardEntityURN.DRONE).size());
+        agentConfig.setIntValue(StandardConstants.FIRE_DRONE_COUNT_KEY, model.getEntitiesOfType(StandardEntityURN.FIRE_DRONE).size());
+
         Set<Entity> initialEntities = new HashSet<Entity>();
         for (Entity e : world) {
             maybeAddInitialEntity(e, initialEntities);
@@ -90,6 +93,7 @@ public class StandardAgentRegistrar implements AgentRegistrar {
                        || e instanceof PoliceOffice
                        || e instanceof RescueRobot
                        || e instanceof Drone
+                       || e instanceof FireDrone
                        ) {
                    Set<Entity> s = new HashSet<Entity>(initialEntities);
                    s.remove(e);
