@@ -5,6 +5,7 @@
   <scenario:civilian scenario:location="975"/>
   <scenario:civilian scenario:location="975"/>
   <scenario:civilian scenario:location="975"/>
+  <scenario:civilian scenario:location="975"/>
   <scenario:policeforce scenario:location="250"/>
   <scenario:policeforce scenario:location="250"/>
   <scenario:policeforce scenario:location="250"/>
@@ -14,11 +15,12 @@
   <scenario:rescuerobot scenario:location="297"/>
   <scenario:rescuerobot scenario:location="314"/>
   <scenario:rescuerobot scenario:location="314"/>
-  <scenario:rescuerobot scenario:location="971"/>
-  <scenario:rescuerobot scenario:location="971"/>
-  <scenario:rescuerobot scenario:location="259"/>
   <scenario:rescuerobot scenario:location="296"/>
-  <scenario:rescuerobot scenario:location="270"/>
+  <scenario:rescuerobot scenario:location="968"/>
+  <scenario:rescuerobot scenario:location="971"/>
+  <scenario:rescuerobot scenario:location="971"/>
+  <scenario:rescuerobot scenario:location="969"/>
+  <scenario:rescuerobot scenario:location="976"/>
   <scenario:drone scenario:location="974"/>
   <scenario:drone scenario:location="262"/>
   <scenario:drone scenario:location="974"/>

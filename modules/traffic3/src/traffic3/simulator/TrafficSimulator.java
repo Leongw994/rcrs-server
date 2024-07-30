@@ -38,10 +38,6 @@ import traffic3.manager.TrafficManager;
 import traffic3.objects.TrafficAgent;
 import traffic3.objects.TrafficArea;
 import traffic3.objects.TrafficBlockade;
-import traffic3.simulator.Dijkstra;
-import traffic3.simulator.PathElement;
-import traffic3.simulator.TrafficConstants;
-import traffic3.simulator.TrafficSimulatorGUI;
 
 /**
  * The Area model traffic simulator.
@@ -380,6 +376,66 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
     agent.setPath1(steps);
   }
 
+  private void handleFly(AKFly fly, ChangeSet changes) {
+//    Robot robot = (Robot) model.getEntity(fly.getAgentID());
+    Human human = (Human) model.getEntity(fly.getAgentID());
+    TrafficAgent agent = manager.getTrafficAgent(human);
+    EntityID current = human.getPosition();
+    if (current == null) {
+      Logger.warn("Rejecting fly: Agent position is not defined");
+      return;
+    }
+    Entity currentEntity = model.getEntity(human.getPosition());
+    if (!(currentEntity instanceof Area)) {
+      Logger.warn("Rejecting fly: Agent position is not an area: " + currentEntity);
+      return;
+    }
+    Area currentArea = (Area) currentEntity;
+    List<EntityID> list = fly.getPath();
+    List<PathElement> steps = new ArrayList<PathElement>();
+    Edge lastEdge = null;
+    /**
+     * Check that all elements refer to Area instances and build the list of target
+     * points Target points between areas are the midpoint of the shared edge
+     */
+    for (Iterator<EntityID> it = list.iterator(); it.hasNext();) {
+      EntityID next = it.next();
+      if (next.equals(current)) {
+        continue;
+      }
+      Entity e = model.getEntity(next);
+      if (!(e instanceof Area)) {
+        Logger.warn("Rejecting fly: Entity ID " + next + " is not an area: " + e);
+        return;
+      }
+
+      Edge edge = currentArea.getEdgeTo(next);
+      if (edge == null) {
+        Logger.warn("Rejecting fly: Entity ID " + next + " is not adjacent to " + currentArea);
+        return;
+      }
+      Area nextArea = (Area) e;
+
+      steps.addAll(getPathElementsIgnoreBlockades(currentArea, lastEdge, nextArea, edge));
+
+      current = next;
+      currentArea = nextArea;
+      lastEdge = edge;
+    }
+    int targetX = fly.getDestinationX();
+    int targetY = fly.getDestinationY();
+    if (targetX == -1 && targetY == -1) {
+      targetX = currentArea.getX();
+      targetY = currentArea.getY();
+    } else if (list.isEmpty()) {
+      Logger.warn("Rejecting move: Path is empty");
+      return;
+    }
+    steps.add(new PathElement(current, null, new Point2D(targetX, targetY)));
+    agent.setPath1(steps);
+
+  }
+
   private Collection<? extends PathElement> getPathElements(Human human, Area lastArea, Edge lastEdge, Area nextArea,
                                                                                Edge nextEdge) {
     if (human.getID().getValue() == 204623396) {
@@ -443,6 +499,34 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
     }
     return null;
 
+  }
+
+  private Collection<? extends PathElement> getPathElementsIgnoreBlockades(Area lastArea,Edge lastEdge, Area nextArea,
+                                                                           Edge nextEdge) {
+    ArrayList<PathElement> steps = new ArrayList<PathElement>();
+    Point2D edgePoint = getBestPoint(nextEdge, nextArea);
+    Point2D centrePoint = new Point2D(lastArea.getX(), lastArea.getY());
+    if (lastEdge == null) {
+      Point2D entracePoint = getEntranceOfArea(nextEdge, lastArea);
+        if (entracePoint != null) {
+            steps.add(new PathElement(lastArea.getID(), null, entracePoint, centrePoint));
+            steps.add(new PathElement(lastArea.getID(), nextEdge.getLine(), edgePoint, entracePoint));
+        } else
+            steps.add(new PathElement(lastArea.getID(), nextEdge.getLine(), edgePoint));
+    } else {
+        Point2D startEntracePoint = getEntranceOfArea(lastEdge, lastArea);
+        if (startEntracePoint != null) {
+            steps.add(new PathElement(lastArea.getID(), null, startEntracePoint));
+        }
+        Point2D entracePoint = getEntranceOfArea(nextEdge, lastArea);
+      if (entracePoint != null) {
+        steps.add(new PathElement(lastArea.getID(), nextEdge.getLine(), entracePoint, centrePoint));
+        steps.add(new PathElement(lastArea.getID(), nextEdge.getLine(), edgePoint, entracePoint));
+      } else {
+        steps.add(new PathElement(lastArea.getID(), nextEdge.getLine(), edgePoint, centrePoint));
+      }
+    }
+    return steps;
   }
 
   private Collection<? extends PathElement> getPathElements2(Human human, Area lastArea, Edge lastEdge, Area nextArea,

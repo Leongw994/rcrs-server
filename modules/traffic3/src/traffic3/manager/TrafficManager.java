@@ -13,11 +13,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import rescuecore2.misc.collections.LazyMap;
-import rescuecore2.standard.entities.Area;
-import rescuecore2.standard.entities.Blockade;
-import rescuecore2.standard.entities.Human;
-import rescuecore2.standard.entities.StandardEntity;
-import rescuecore2.standard.entities.StandardWorldModel;
+import rescuecore2.standard.entities.*;
 import rescuecore2.worldmodel.Entity;
 import rescuecore2.worldmodel.EntityID;
 import gnu.trove.TIntProcedure;
@@ -284,6 +280,19 @@ public class TrafficManager {
    */
   public TrafficAgent getTrafficAgent(Human h) {
     return agents.get(h);
+  }
+
+  /**
+   * Get the TrafficAgent that wraps a given human.
+   *
+   * @param h
+   *   The human to look up.
+   *
+   * @return The TrafficAgent that wraps the given human or null if no such
+   * TrafficAgent exists.
+   */
+  public TrafficAgent getTrafficRobot(Robot r) {
+    return agents.get(r);
   }
 
 

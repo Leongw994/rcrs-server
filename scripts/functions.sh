@@ -208,7 +208,7 @@ function startSims {
 
   execute traffic4 "java -Xmx1024m -cp $CP:$BASEDIR/jars/rescuecore2.jar:$BASEDIR/jars/standard.jar:$BASEDIR/jars/traffic4.jar -Dlog4j.log.dir=$LOGDIR rescuecore2.LaunchComponents traffic4.simulator.TrafficSimulator -c $CONFIGDIR/traffic4.cfg $GUI_OPTION $*"
     echo "waiting for traffic 4 to connect..."
-    waitFor $LOGDIR/traffic4-out.log "success"
+    waitFor $LOGDIR/traffic-out.log "success"
 
   #execute traffic5 "java -Xmx1024m -cp $CP:$BASEDIR/jars/rescuecore2.jar:$BASEDIR/jars/standard.jar:$BASEDIR/jars/traffic5.jar -Dlog4j.log.dir=$LOGDIR rescuecore2.LaunchComponents traffic5.simulator.TrafficSimulator -c $CONFIGDIR/traffic5.cfg $GUI_OPTION $*"
       #echo "waiting for traffic 5 to connect..."
