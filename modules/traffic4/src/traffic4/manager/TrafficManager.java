@@ -15,16 +15,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import rescuecore2.misc.collections.LazyMap;
-import rescuecore2.standard.entities.Area;
-import rescuecore2.standard.entities.Blockade;
-import rescuecore2.standard.entities.Robot;
-import rescuecore2.standard.entities.StandardEntity;
-import rescuecore2.standard.entities.StandardWorldModel;
+import rescuecore2.standard.entities.*;
 import rescuecore2.worldmodel.Entity;
 import rescuecore2.worldmodel.EntityID;
 import gnu.trove.TIntProcedure;
 import traffic4.objects.TrafficAgent;
 import traffic4.objects.TrafficArea;
+import traffic4.objects.TrafficBlockade;
 //import traffic4.objects.TrafficBlockade;
 
 /**
@@ -32,10 +29,11 @@ import traffic4.objects.TrafficArea;
  */
 public class TrafficManager {
 
+
     private Map<Integer, TrafficArea> areaByID;
-    //private Map<Integer, TrafficBlockade> blockadeByID;
+    private Map<Integer, TrafficBlockade> blockadeByID;
     private Map<Area, TrafficArea> areas;
-    //private Map<Blockade, TrafficBlockade> blocks;
+    private Map<Blockade, TrafficBlockade> blocks;
     private Map<Robot, TrafficAgent> agents;
     private Map<TrafficArea, Collection<TrafficArea>> areaNeighbours;
 
@@ -47,8 +45,8 @@ public class TrafficManager {
     public TrafficManager() {
         areas = new ConcurrentHashMap<Area, TrafficArea>();
         areaByID = new ConcurrentHashMap<Integer, TrafficArea>();
-        //blocks = new ConcurrentHashMap<Blockade, TrafficBlockade>();
-        //blockadeByID = new ConcurrentHashMap<Integer, TrafficBlockade>();
+        blocks = new ConcurrentHashMap<Blockade, TrafficBlockade>();
+        blockadeByID = new ConcurrentHashMap<Integer, TrafficBlockade>();
         agents = new ConcurrentHashMap<Robot, TrafficAgent>();
         areaNeighbours = new LazyMap<TrafficArea, Collection<TrafficArea>>() {
 
@@ -124,11 +122,11 @@ public class TrafficManager {
      */
     public void clear() {
         areas.clear();
-        //blocks.clear();
+        blocks.clear();
         agents.clear();
         areaNeighbours.clear();
         areaByID.clear();
-        //blockadeByID.clear();
+        blockadeByID.clear();
         index = new RTree();
         index.init(new Properties());
     }
@@ -161,34 +159,37 @@ public class TrafficManager {
      * Register a new TrafficBlockade1.
      *
      * @param block The TrafficBlockade1 to register.
-     *              <p>
-     *              public void register(TrafficBlockade block) {
-     *              blocks.put(block.getBlockade(), block);
-     *              blockadeByID.put(block.getBlockade().getID().getValue(), block);
-     *              }
-     *              <p>
-     *              <p>
-     *              /**
-     *              Remove a blockade.
+     */
+    public void register(TrafficBlockade block) {
+        blocks.put(block.getBlockade(), block);
+        blockadeByID.put(block.getBlockade().getID().getValue(), block);
+    }
+
+
+    /**
+     * Remove a blockade.
+     *
      * @param block The TrafficBlockade1 to remove.
-     *              <p>
-     *              public void remove(TrafficBlockade block) {
-     *              remove(block.getBlockade());
-     *              }
-     *              <p>
-     *              <p>
-     *              /**
-     *              Remove a blockade.
+     */
+    public void remove(TrafficBlockade block) {
+        remove(block.getBlockade());
+    }
+
+
+    /**
+     * Remove a blockade.
+     *
      * @param block The Blockade to remove.
-     *              <p>
-     *              public void remove(Blockade block) {
-     *              blocks.remove(block);
-     *              blockadeByID.remove(block.getID().getValue());
-     *              }
-     *              <p>
-     *              <p>
-     *              /**
-     *              Get all TrafficAgents.
+     */
+    public void remove(Blockade block) {
+        blocks.remove(block);
+        blockadeByID.remove(block.getID().getValue());
+    }
+
+
+    /**
+     * Get all TrafficAgents.
+     *
      * @return All TrafficAgents.
      */
     public Collection<TrafficAgent> getAgents() {
@@ -209,18 +210,19 @@ public class TrafficManager {
     /**
      * Get all TrafficBlockades.
      *
-     * @param world The world model.
      * @return All TrafficBlockades.
-     * <p>
-     * public Collection<TrafficBlockade> getBlockades() {
-     * return Collections.unmodifiableCollection(blocks.values());
-     * }
-     * <p>
-     * <p>
-     * /**
+     */
+    public Collection<TrafficBlockade> getBlockades() {
+        return Collections.unmodifiableCollection(blocks.values());
+    }
+
+
+    /**
      * Compute pre-cached information about the world. TrafficArea and
      * TrafficAgent objects must have already been registered with
-     * {@link #register(TrafficArea)} and {@link #register(TrafficAgent)}.
+     * {@link #register(traffic4.objects.TrafficArea)} and {@link #register(traffic4.objects.TrafficAgent)}.
+     *
+     * @param world The world model.
      */
     public void cacheInformation(StandardWorldModel world) {
         areaNeighbours.clear();
@@ -248,17 +250,18 @@ public class TrafficManager {
      * Get the TrafficBlockade1 that wraps a given Blockade.
      *
      * @param b The blockade to look up.
-     * @param h The human to look up.
      * @return The TrafficBlockade1 that wraps the given blockade or null if no
      * such TrafficBlockade1 exists.
-     * <p>
-     * public TrafficBlockade getTrafficBlockade(Blockade b) {
-     * return blocks.get(b);
-     * }
-     * <p>
-     * <p>
-     * /**
+     */
+    public TrafficBlockade getTrafficBlockade(Blockade b) {
+        return blocks.get(b);
+    }
+
+
+    /**
      * Get the TrafficAgent that wraps a given human.
+     *
+     * @param r The human to look up.
      * @return The TrafficAgent that wraps the given human or null if no such
      * TrafficAgent exists.
      */
@@ -277,4 +280,5 @@ public class TrafficManager {
             }
         }
     }
+
 }

@@ -93,10 +93,6 @@ public final class StandardMessageFactory
 			return new AKSpeak(proto);
 		case AK_FLY:
 			return new AKFly(proto);
-		case AK_SEARCH:
-			return new AKSearch(proto);
-		case AK_DETECT:
-			return new AKDetect(proto);
 		default:
 			Logger.warn("Unrecognised message urn: " + urn);
 			return null;

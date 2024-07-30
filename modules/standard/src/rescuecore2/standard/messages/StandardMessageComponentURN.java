@@ -14,8 +14,7 @@ public enum StandardMessageComponentURN implements URN {
   Path(STANDARD_MSG_COMPONENT_URN_PREFIX | 5, "Path"),
   Message(STANDARD_MSG_COMPONENT_URN_PREFIX | 6, "Message"),
   Channel(STANDARD_MSG_COMPONENT_URN_PREFIX | 7, "Channel"),
-  Channels(STANDARD_MSG_COMPONENT_URN_PREFIX | 8, "Channels"),
-  Height(STANDARD_MSG_COMPONENT_URN_PREFIX | 9, "Height");
+  Channels(STANDARD_MSG_COMPONENT_URN_PREFIX | 8, "Channels");
 
   private int urnId;
   private String urnStr;

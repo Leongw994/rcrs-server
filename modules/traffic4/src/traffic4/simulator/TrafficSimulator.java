@@ -25,13 +25,19 @@ import rescuecore2.misc.gui.ShapeDebugFrame.Line2DShapeInfo;
 import rescuecore2.standard.components.StandardSimulator;
 import rescuecore2.standard.entities.*;
 import rescuecore2.standard.messages.*;
-import rescuecore2.worldmodel.ChangeSet;
-import rescuecore2.worldmodel.Entity;
-import rescuecore2.worldmodel.EntityID;
+import rescuecore2.worldmodel.*;
 
+import rescuecore2.worldmodel.properties.EntityRefListProperty;
+import rescuecore2.worldmodel.properties.EntityRefProperty;
+import rescuecore2.worldmodel.properties.IntProperty;
 import traffic4.manager.TrafficManager;
 import traffic4.objects.TrafficAgent;
 import traffic4.objects.TrafficArea;
+import traffic4.objects.TrafficBlockade;
+import traffic4.simulator.Dijkstra;
+import traffic4.simulator.PathElement;
+import traffic4.simulator.TrafficConstants;
+import traffic4.simulator.TrafficSimulatorGUI;
 //import traffic4.objects.TrafficBlockade;
 
 /**
@@ -61,10 +67,6 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         gui = new TrafficSimulatorGUI(manager);
     }
 
-    static Point2D getMidPoint(Point2D p1, Point2D p2) {
-        return new Point2D((p1.getX() + p2.getX()) / 2, (p1.getY() + p2.getY()) / 2);
-    }
-
     @Override
     public JComponent getGUIComponent() {
         return gui;
@@ -72,7 +74,7 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
 
     @Override
     public String getGUIComponentName() {
-        return "Traffic simulator for drones";
+        return "Traffic simulator";
     }
 
     @Override
@@ -89,34 +91,34 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         NumberGenerator<Double> civilianVelocityGenerator = new GaussianGenerator(CIVILIAN_VELOCITY_MEAN,
                 CIVILIAN_VELOCITY_SD, config.getRandom());
         for (StandardEntity next : model) {
-            //if (next instanceof Human) {
-            //convertHuman((Human) next, agentVelocityGenerator, civilianVelocityGenerator);
-            //}
-            //if (next instanceof Blockade) {
-            //convertBlockade((Blockade) next);
-            //}
+//            if (next instanceof Human) {
+//                convertHuman((Human) next, agentVelocityGenerator, civilianVelocityGenerator);
+//            }
+//            if (next instanceof Blockade) {
+//                convertBlockade((Blockade) next);
+//            }
             if (next instanceof Robot) {
-                convertDrone((Robot) next, agentVelocityGenerator/*, civilianVelocityGenerator*/);
+                convertRobot((Robot) next, agentVelocityGenerator, civilianVelocityGenerator);
             }
         }
-        //    model.addWorldModelListener(new WorldModelListener<StandardEntity>() {
-        //      @Override
-        //      public void entityAdded(WorldModel<? extends StandardEntity> model, StandardEntity e) {
-        //        if (e instanceof Blockade) {
-        //          convertBlockade((Blockade) e);
-        //        }
-        //      }
+        model.addWorldModelListener(new WorldModelListener<StandardEntity>() {
+            @Override
+            public void entityAdded(WorldModel<? extends StandardEntity> model, StandardEntity e) {
+//                if (e instanceof Blockade) {
+//                    convertBlockade((Blockade) e);
+//                }
+            }
 
-        //      @Override
-        //      public void entityRemoved(WorldModel<? extends StandardEntity> model, StandardEntity e) {
-        //        if (e instanceof Blockade) {
-        //          Blockade b = (Blockade) e;
-        //          TrafficBlockade block = manager.getTrafficBlockade(b);
-        //          block.getArea().removeBlockade(block);
-        //          manager.remove(block);
-        //        }
-        //      }
-        //    });
+            @Override
+            public void entityRemoved(WorldModel<? extends StandardEntity> model, StandardEntity e) {
+//                if (e instanceof Blockade) {
+//                    Blockade b = (Blockade) e;
+//                    TrafficBlockade block = manager.getTrafficBlockade(b);
+//                    block.getArea().removeBlockade(block);
+//                    manager.remove(block);
+//                }
+            }
+        });
         gui.initialise();
         manager.cacheInformation(model);
     }
@@ -136,6 +138,27 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
             if (next instanceof AKFly) {
                 handleFly((AKFly) next);
             }
+//            if (next instanceof AKMove) {
+//                handleMove((AKMove) next);
+//            }
+//            if (next instanceof AKLoad) {
+//                handleLoad((AKLoad) next, changes);
+//            }
+//            if (next instanceof AKUnload) {
+//                handleUnload((AKUnload) next, changes);
+//            }
+//            if (next instanceof AKRescue) {
+//                handleRescue((AKRescue) next, changes);
+//            }
+//            if (next instanceof AKClear) {
+//                handleClear((AKClear) next, changes);
+//            }
+//            if (next instanceof AKClearArea) {
+//                handleClear((AKClearArea) next, changes);
+//            }
+//            if (next instanceof AKExtinguish) {
+//                handleExtinguish((AKExtinguish) next, changes);
+//            }
         }
         /**
          * Any agents that are dead or in ambulances are immobile, Civilians that are
@@ -145,8 +168,28 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         for (StandardEntity next : model) {
             if (next instanceof Robot) {
                 Robot r = (Robot) next;
+//                if (h.isHPDefined() && h.getHP() <= 0) {
+//                    Logger.debug("Agent " + h + " is dead");
+//                    manager.getTrafficAgent(h).setMobile(false);
+//                }
+//                if (h.isPositionDefined() && (model.getEntity(h.getPosition()) instanceof AmbulanceTeam)) {
+//                    Logger.debug("Agent " + h + " is in an ambulance");
+//                    manager.getTrafficAgent(h).setMobile(false);
+//                }
+//                if (h.isBuriednessDefined() && h.getBuriedness() > 0) {
+//                    Logger.debug("Agent " + h + " is buried");
+//                    manager.getTrafficAgent(h).setMobile(false);
+//                }
+//                if (h instanceof Civilian && h.isDamageDefined() && h.getDamage() > 0) {
+//                    Logger.debug("Agent " + h + " is injured");
+//                    manager.getTrafficAgent(h).setMobile(false);
+//                }
+//                if (h instanceof Civilian && h.isPositionDefined() && (model.getEntity(h.getPosition()) instanceof Refuge)) {
+//                    Logger.debug("Agent " + h + " is in a refuge");
+//                    manager.getTrafficAgent(h).setMobile(false);
+//                }
                 if (r instanceof Drone && r.isBatteryDefined() && r.getBattery() <= 0) {
-                    Logger.debug("Drone " + r + " is out of battery");
+                    Logger.debug("The drone " + r + " is out of battery");
                     manager.getTrafficAgent(r).setMobile(false);
                 }
             }
@@ -184,7 +227,6 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
             changes.addChange(robot, robot.getYProperty());
             changes.addChange(robot, robot.getPositionHistoryProperty());
             changes.addChange(robot, robot.getTravelDistanceProperty());
-            changes.addChange(robot, robot.getHeightProperty());
         }
         long end = System.currentTimeMillis();
         Logger.info("Timestep " + c.getTime() + " took " + (end - start) + " ms");
@@ -196,41 +238,36 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         super.handleUpdate(u);
     }
 
-    //  private void clearAreaCache(EntityID entityArea) {
-    //    manager.getTrafficArea((Area) model.getEntity(entityArea)).clearBlockadeCache();
-    //  }
-
     private void clearCache(KSUpdate u) {
         for (EntityID id : u.getChangeSet().getChangedEntities()) {
             StandardEntity entity = model.getEntity(id);
             switch (StandardEntityURN.fromInt(u.getChangeSet().getEntityURN(id))) {
-                //        case BLOCKADE:
-                //          IntProperty blockadeCost = (IntProperty) u.getChangeSet().getChangedProperty(id,
-                //              StandardPropertyURN.REPAIR_COST.getURNId());
-                //          EntityRefProperty position = ((EntityRefProperty) u.getChangeSet().getChangedProperty(id,
-                //              StandardPropertyURN.POSITION.getURNId()));
-                //          if (entity == null || blockadeCost == null
-                //              || ((Blockade) entity).getRepairCost() != blockadeCost.getValue()) {
-                //            if (position != null)
-                //              clearAreaCache(position.getValue());
-                //            else if (entity != null) {
-                //              clearAreaCache(((Blockade) entity).getPosition());
-                //
-                //            }
-                //          }
-                //          break;
-                //unblocked
-                        case ROAD:
-                //        case HYDRANT:
-                //          if (entity == null)
-                //            continue;
-                //          EntityRefListProperty blockades = (EntityRefListProperty) u.getChangeSet().getChangedProperty(id,
-                //              StandardPropertyURN.BLOCKADES.getURNId());
-                //          if ((!((Road) entity).isBlockadesDefined())
-                //              || !blockades.getValue().containsAll(((Road) entity).getBlockades())
-                //              || !((Road) entity).getBlockades().containsAll(blockades.getValue()))
-                //            clearAreaCache(id);
-                //          break;
+//                case BLOCKADE:
+//                    IntProperty blockadeCost = (IntProperty) u.getChangeSet().getChangedProperty(id,
+//                            StandardPropertyURN.REPAIR_COST.getURNId());
+//                    EntityRefProperty position = ((EntityRefProperty) u.getChangeSet().getChangedProperty(id,
+//                            StandardPropertyURN.POSITION.getURNId()));
+//                    if (entity == null || blockadeCost == null
+//                            || ((Blockade) entity).getRepairCost() != blockadeCost.getValue()) {
+//                        if (position != null)
+//                            clearAreaCache(position.getValue());
+//                        else if (entity != null) {
+//                            clearAreaCache(((Blockade) entity).getPosition());
+//
+//                        }
+//                    }
+//                    break;
+                case ROAD:
+//                case HYDRANT:
+//                    if (entity == null)
+//                        continue;
+//                    EntityRefListProperty blockades = (EntityRefListProperty) u.getChangeSet().getChangedProperty(id,
+//                            StandardPropertyURN.BLOCKADES.getURNId());
+//                    if ((!((Road) entity).isBlockadesDefined())
+//                            || !blockades.getValue().containsAll(((Road) entity).getBlockades())
+//                            || !((Road) entity).getBlockades().containsAll(blockades.getValue()))
+//                        clearAreaCache(id);
+//                    break;
                 case BUILDING:
                 case AMBULANCE_CENTRE:
                 case FIRE_STATION:
@@ -240,7 +277,7 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
                 case AMBULANCE_TEAM:
                 case RESCUE_ROBOT:
                 case POLICE_FORCE:
-                case CIVILIAN:
+//                case CIVILIAN:
                 case FIRE_BRIGADE:
                 case DRONE:
                 case WORLD:
@@ -250,39 +287,47 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         }
     }
 
-    //  private void convertBlockade(Blockade b) {
-    //    Logger.debug("Converting blockade: " + b.getFullDescription());
-    //    Area a = (Area) model.getEntity(b.getPosition());
-    //    Logger.debug("Area: " + a);
-    //    TrafficArea area = manager.getTrafficArea(a);
-    //    Logger.debug("Traffic area: " + area);
-    //    TrafficBlockade block = new TrafficBlockade(b, area);
-    //    manager.register(block);
-    //    area.addBlockade(block);
-    //  }
+    private void clearAreaCache(EntityID entityArea) {
+        manager.getTrafficArea((Area) model.getEntity(entityArea)).clearBlockadeCache();
+    }
 
     private void convertAreaToTrafficArea(Area area) {
         manager.register(new TrafficArea(area));
     }
 
-    private void convertDrone(Robot r, NumberGenerator<Double> agentVelocityGenerator
-                              /*NumberGenerator<Double> civilianVelocityGenerator*/) {
+//    private void convertBlockade(Blockade b) {
+//        Logger.debug("Converting blockade: " + b.getFullDescription());
+//        Area a = (Area) model.getEntity(b.getPosition());
+//        Logger.debug("Area: " + a);
+//        TrafficArea area = manager.getTrafficArea(a);
+//        Logger.debug("Traffic area: " + area);
+//        TrafficBlockade block = new TrafficBlockade(b, area);
+//        manager.register(block);
+//        area.addBlockade(block);
+//    }
+
+    private void convertRobot(Robot h, NumberGenerator<Double> agentVelocityGenerator,
+                              NumberGenerator<Double> civilianVelocityGenerator) {
         double radius = 0;
         double velocityLimit = 0;
-        if (r instanceof Drone) {
+        if (h instanceof Drone) {
             radius = RESCUE_AGENT_RADIUS;
             velocityLimit = agentVelocityGenerator.nextValue();
-        } else {
-            throw new IllegalArgumentException("Unrecognised agent type: " + r + " (" + r.getClass().getName() + ")");
+        } /*else if (h instanceof Civilian) {
+            radius = CIVILIAN_RADIUS;
+            velocityLimit = civilianVelocityGenerator.nextValue();
+        } */else {
+            throw new IllegalArgumentException("Unrecognised agent type: " + h + " (" + h.getClass().getName() + ")");
         }
-        TrafficAgent agent = new TrafficAgent(r, manager, radius, velocityLimit);
-        agent.setLocation(r.getX(), r.getY());
+        TrafficAgent agent = new TrafficAgent(h, manager, radius, velocityLimit);
+        agent.setLocation(h.getX(), h.getY());
         manager.register(agent);
     }
 
+
     private void handleFly(AKFly fly) {
         Robot robot = (Robot) model.getEntity(fly.getAgentID());
-        traffic4.objects.TrafficAgent agent = manager.getTrafficAgent(robot);
+        TrafficAgent agent = manager.getTrafficAgent(robot);
         EntityID current = robot.getPosition();
         if (current == null) {
             Logger.warn("Rejecting move: Agent position is not defined");
@@ -295,7 +340,7 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         }
         Area currentArea = (Area) currentEntity;
         List<EntityID> list = fly.getPath();
-        List<traffic4.simulator.PathElement> steps = new ArrayList<traffic4.simulator.PathElement>();
+        List<PathElement> steps = new ArrayList<PathElement>();
         Edge lastEdge = null;
         /**
          * Check that all elements refer to Area instances and build the list of target
@@ -334,12 +379,12 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
             Logger.warn("Rejecting move: Path is empty");
             return;
         }
-        steps.add(new traffic4.simulator.PathElement(current, null, new Point2D(targetX, targetY)));
+        steps.add(new PathElement(current, null, new Point2D(targetX, targetY)));
         agent.setPath1(steps);
     }
 
     private Collection<? extends PathElement> getPathElements(Robot robot, Area lastArea, Edge lastEdge, Area nextArea,
-                                                              Edge nextEdge) {
+                                                                                 Edge nextEdge) {
         if (robot.getID().getValue() == 204623396) {
             System.out.println(
                     "lastArea=" + lastArea + " lastEdge=" + lastEdge + " nextArea=" + nextArea + " nextEdge=" + nextEdge);
@@ -371,6 +416,14 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         return steps;
     }
 
+    private boolean haveImpassibleEdge(Area dest) {
+        for (Edge edge : dest.getEdges()) {
+            if (!edge.isPassable())
+                return true;
+        }
+        return false;
+    }
+
     private Point2D getEntranceOfArea(Edge inComingEdge, Area dest) {
 
         Point2D edgeMid = getBestPoint(inComingEdge, dest);
@@ -396,7 +449,7 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
     }
 
     private Collection<? extends PathElement> getPathElements2(Robot robot, Area lastArea, Edge lastEdge, Area nextArea,
-                                                               Edge nextEdge) {
+                                                                                  Edge nextEdge) {
         Collection<? extends PathElement> originalPaths = getPathElements(robot, lastArea, lastEdge, nextArea, nextEdge);
         if (isOriginalPathOk(originalPaths))
             return originalPaths;
@@ -485,11 +538,11 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         for (PathElement pathElement : originalPaths) {
 
             TrafficArea area = manager.getTrafficArea((Area) model.getEntity(pathElement.getAreaID()));
-            //      for (TrafficBlockade block : area.getBlockades()) {
-            //        if (block.getBlockade().getShape().contains(pathElement.getGoal().getX(), pathElement.getGoal().getY()))
-            //          return false;
-//          return true;
-//      }
+//            for (TrafficBlockade block : area.getBlockades()) {
+//                if (block.getBlockade().getShape().contains(pathElement.getGoal().getX(), pathElement.getGoal().getY()))
+//                    return false;
+////          return true;
+//            }
             double minDistance = getMinDistance(area.getAllBlockingLines(), pathElement.getGoal());
 
             if (minDistance < TrafficSimulator.RESCUE_AGENT_RADIUS / 2)
@@ -522,6 +575,10 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         return true;
     }
 
+    static Point2D getMidPoint(Point2D p1, Point2D p2) {
+        return new Point2D((p1.getX() + p2.getX()) / 2, (p1.getY() + p2.getY()) / 2);
+    }
+
     private Point2D getTransivit(Point2D base, Point2D p1) {
         return new Point2D((base.getX() - (p1.getX() - base.getX())), (base.getY() - (p1.getY() - base.getY())));
 
@@ -542,6 +599,172 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         return min;
 
     }
+//    // Return the loaded civilian (if any)
+//    private Civilian handleLoad(AKLoad load, ChangeSet changes) {
+//        EntityID agentID = load.getAgentID();
+//        EntityID targetID = load.getTarget();
+//        Entity agent = model.getEntity(agentID);
+//        Entity target = model.getEntity(targetID);
+//        if (agent == null) {
+//            Logger.warn("Rejecting load command from agent " + agentID + ": agent does not exist");
+//            return null;
+//        }
+//        if (!(agent instanceof AmbulanceTeam)) {
+//            Logger.warn("Rejecting load command from agent " + agentID + ": agent type is " + agent.getURN());
+//            return null;
+//        }
+//        if (target == null) {
+//            Logger.warn("Rejecting load command from agent " + agentID + ": target does not exist " + targetID);
+//            return null;
+//        }
+//        if (!(target instanceof Civilian)) {
+//            Logger.warn(
+//                    "Rejecting load command from agent " + agentID + ": target " + targetID + " is of type " + target.getURN());
+//            return null;
+//        }
+//        AmbulanceTeam at = (AmbulanceTeam) agent;
+//        Civilian h = (Civilian) target;
+//        if (at.isHPDefined() && at.getHP() <= 0) {
+//            Logger.warn("Rejecting load command from agent " + agentID + ": agent is dead");
+//            return null;
+//        }
+//        if (at.isBuriednessDefined() && at.getBuriedness() > 0) {
+//            Logger.warn("Rejecting load command from agent " + agentID + ": agent is buried");
+//            return null;
+//        }
+//        if (h.isBuriednessDefined() && h.getBuriedness() > 0) {
+//            Logger.warn("Rejecting load command from agent " + agentID + ": target " + targetID + " is buried");
+//            return null;
+//        }
+//        if (!h.isPositionDefined() || !at.isPositionDefined() || !h.getPosition().equals(at.getPosition())) {
+//            Logger.warn("Rejecting load command from agent " + agentID + ": target is non-adjacent " + targetID);
+//            return null;
+//        }
+//        if (h.getID().equals(at.getID())) {
+//            Logger.warn("Rejecting load command from agent " + agentID + ": tried to load self");
+//            return null;
+//        }
+//        // Is there something already loaded?
+//        for (Entity e : model.getEntitiesOfType(StandardEntityURN.CIVILIAN)) {
+//            Civilian c = (Civilian) e;
+//            if (c.isPositionDefined() && agentID.equals(c.getPosition())) {
+//                Logger.warn(
+//                        "Rejecting load command from agent " + agentID + ": agent already has civilian " + c.getID() + " loaded");
+//                return null;
+//            }
+//        }
+//        // All checks passed: do the load
+//        h.setPosition(agentID);
+//        h.undefineX();
+//        h.undefineY();
+//        changes.addChange(h, h.getPositionProperty());
+//        changes.addChange(h, h.getXProperty());
+//        changes.addChange(h, h.getYProperty());
+//        manager.getTrafficAgent(at).setMobile(false);
+//        manager.getTrafficAgent(h).setMobile(false);
+//        Logger.debug(at + " loaded " + h);
+//        return h;
+//    }
+
+//    // Return the unloaded civilian (if any)
+//    private Civilian handleUnload(AKUnload unload, ChangeSet changes) {
+//        EntityID agentID = unload.getAgentID();
+//        Entity agent = model.getEntity(agentID);
+//        if (agent == null) {
+//            Logger.warn("Rejecting unload command from agent " + agentID + ": agent does not exist");
+//            return null;
+//        }
+//        if (!(agent instanceof AmbulanceTeam)) {
+//            Logger.warn("Rejecting unload command from agent " + agentID + ": agent type is " + agent.getURN());
+//            return null;
+//        }
+//        AmbulanceTeam at = (AmbulanceTeam) agent;
+//        if (!at.isPositionDefined() || !at.isXDefined() || !at.isYDefined()) {
+//            Logger.warn("Rejecting unload command from agent " + agentID + ": could not locate agent");
+//            return null;
+//        }
+//        if (at.isHPDefined() && at.getHP() <= 0) {
+//            Logger.warn("Rejecting unload command from agent " + agentID + ": agent is dead");
+//            return null;
+//        }
+//        if (at.isBuriednessDefined() && at.getBuriedness() > 0) {
+//            Logger.warn("Rejecting unload command from agent " + agentID + ": agent is buried");
+//            return null;
+//        }
+//        // Is there something loaded?
+//        Civilian target = null;
+//        Logger.debug("Looking for civilian carried by " + agentID);
+//        for (Entity e : model.getEntitiesOfType(StandardEntityURN.CIVILIAN)) {
+//            Civilian c = (Civilian) e;
+//            Logger.debug(c + " is at " + c.getPosition());
+//            if (c.isPositionDefined() && agentID.equals(c.getPosition())) {
+//                target = c;
+//                Logger.debug("Found civilian " + c);
+//                break;
+//            }
+//        }
+//        if (target == null) {
+//            Logger.warn("Rejecting unload command from agent " + agentID + ": agent is not carrying any civilians");
+//            return null;
+//        }
+//        // All checks passed
+//        target.setPosition(at.getPosition());
+//        target.setX(at.getX());
+//        target.setY(at.getY());
+//        changes.addChange(target, target.getPositionProperty());
+//        changes.addChange(target, target.getXProperty());
+//        changes.addChange(target, target.getYProperty());
+//        for (TrafficAgent trafficAgent : manager.getAgents()) {
+//            if (trafficAgent.getHuman() == target) {
+//                trafficAgent.setLocation(at.getX(), at.getY());
+//                trafficAgent.clearPath();
+//            }
+//        }
+//        manager.getTrafficAgent(at).setMobile(false);
+//        manager.getTrafficAgent(target).setMobile(false);
+//        Logger.debug(at + " unloaded " + target);
+//        return target;
+//    }
+//
+//
+//    private void handleClear(AKClear clear, ChangeSet changes) {
+//        // Agents clearing roads are not mobile
+//        EntityID agentID = clear.getAgentID();
+//        Entity agent = model.getEntity(agentID);
+//        if (agent instanceof Human) {
+//            manager.getTrafficAgent((Human) agent).setMobile(false);
+//            Logger.debug(agent + " is clearing");
+//        }
+//    }
+//
+//    private void handleClear(AKClearArea clear, ChangeSet changes) {
+//        EntityID agentID = clear.getAgentID();
+//        Entity agent = model.getEntity(agentID);
+//        if (agent instanceof Human) {
+//            manager.getTrafficAgent((Human) agent).setMobile(false);
+//            Logger.debug(agent + " is clearing");
+//        }
+//    }
+//
+//    private void handleRescue(AKRescue rescue, ChangeSet changes) {
+//        // Agents rescuing civilians are not mobile
+//        EntityID agentID = rescue.getAgentID();
+//        Entity agent = model.getEntity(agentID);
+//        if (agent instanceof Human) {
+//            manager.getTrafficAgent((Human) agent).setMobile(false);
+//            Logger.debug(agent + " is rescuing");
+//        }
+//    }
+//
+//    private void handleExtinguish(AKExtinguish ex, ChangeSet changes) {
+//        // Agents extinguishing fires are not mobile
+//        EntityID agentID = ex.getAgentID();
+//        Entity agent = model.getEntity(agentID);
+//        if (agent instanceof Human) {
+//            manager.getTrafficAgent((Human) agent).setMobile(false);
+//            Logger.debug(agent + " is extinguishing");
+//        }
+//    }
 
     private void timestep() {
         long start = System.currentTimeMillis();

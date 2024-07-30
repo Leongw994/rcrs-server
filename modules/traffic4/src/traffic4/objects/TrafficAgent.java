@@ -13,11 +13,10 @@ import rescuecore2.misc.geometry.GeometryTools2D;
 import rescuecore2.misc.geometry.Line2D;
 import rescuecore2.misc.geometry.Point2D;
 import rescuecore2.misc.geometry.Vector2D;
-import rescuecore2.standard.entities.Building;
-import rescuecore2.standard.entities.Civilian;
-import rescuecore2.standard.entities.Robot;
-import rescuecore2.standard.entities.Road;
+import rescuecore2.standard.entities.*;
 import traffic4.manager.TrafficManager;
+import traffic4.objects.TrafficArea;
+import traffic4.objects.TrafficBlockade;
 import traffic4.simulator.PathElement;
 import traffic4.simulator.TrafficConstants;
 
@@ -26,53 +25,191 @@ import traffic4.simulator.TrafficConstants;
  */
 public class TrafficAgent {
 
+    /**
+     * This class is used to compute and cache wall related information.
+     *
+     * @author goebelbe
+     *
+     */
+    private static class WallInfo {
+        private Line2D wall;
+        private TrafficArea area;
+        private double distance;
+        private Point2D closest;
+        private Point2D origin;
+        private Line2D line;
+        private Vector2D vector;
+        private boolean isBlockade;
+
+        /**
+         * Create a new WallInfo object from a Line2D in a TrafficArea.
+         *
+         * @param wall
+         *            The wall to cache.
+         * @param area
+         *            The area this wall belongs to.
+         */
+        public WallInfo(Line2D wall, TrafficArea area) {
+            this.wall = wall;
+            this.area = area;
+            this.distance = -1;
+            this.closest = null;
+            this.origin = null;
+        }
+
+        /**
+         * Get the shortest distance from the agent's position. The distance may
+         * not be accurate if the wall can't affect the agent in this microstep.
+         *
+         * @return The distance to the agent.
+         */
+        public double getDistance() {
+            return this.distance;
+        }
+
+        /**
+         * Recompute the distance to the agent and the closest point on the
+         * line.
+         *
+         * @param from
+         *            The position of the agent.
+         */
+        public void computeClostestPoint(Point2D from) {
+            if (from.equals(origin) && distance >= 0 && closest != null) {
+                return;
+            }
+            origin = from;
+            closest = GeometryTools2D.getClosestPointOnSegment(wall, origin);
+            line = new Line2D(origin, closest);
+            vector = line.getDirection();
+            distance = vector.getLength();
+        }
+
+        /**
+         * Get the clostest point to the agent on the wall.
+         *
+         * @return The closest point.
+         */
+        public Point2D getClosestPoint() {
+            return closest;
+        }
+
+        /**
+         * Decrease the distance from the wall by an amount.
+         *
+         * @param d
+         *            The amount by which to decrease the distance.
+         */
+        public void decreaseDistance(double d) {
+            distance -= d;
+        }
+
+        /**
+         * Get the wall this WallInfo represents.
+         *
+         * @return The wall.
+         */
+        public Line2D getWall() {
+            return wall;
+        }
+
+        /**
+         * Get the line from the agent to the closest point on the wall.
+         *
+         * @return Line2D to wall.
+         */
+        public Line2D getLine() {
+            return line;
+        }
+
+        /**
+         * Get the vector from the agent to the closest point on the wall.
+         *
+         * @return Vector2D to wall.
+         */
+        public Vector2D getVector() {
+            return vector;
+        }
+
+        /**
+         * Get the are the wall lies in.
+         *
+         * @return The area of this wall.
+         */
+        public TrafficArea getArea() {
+            return area;
+        }
+    }
+
     private static final int D = 2;
+
     private static final int DEFAULT_POSITION_HISTORY_FREQUENCY = 60;
+
     private static final double NEARBY_THRESHOLD_SQUARED = 1000000;
+
     // Force towards destination
     private final double[] destinationForce = new double[D];
+
     // Force away from agents
     private final double[] agentsForce = new double[D];
+
     // Force away from walls
     private final double[] wallsForce = new double[D];
+
     // Location
     private final double[] location = new double[D];
+
     // Velocity
     private final double[] velocity = new double[D];
+
     // Force
     private final double[] force = new double[D];
+
     // List of blocking lines near the agent.
     private List<WallInfo> blockingLines;
+
     private double radius;
     private double velocityLimit;
+
     // The point this agent wants to reach.
     private Point2D finalDestination;
+
     // The path this agent wants to take.
     private Queue<PathElement> path;
+
     // The current (possibly intermediate) destination.
     private PathElement currentPathElement;
     private Point2D currentDestination;
+
     // The area the agent is currently in.
     private TrafficArea currentArea;
+
     private List<Point2D> positionHistory;
     private double totalDistance;
     private boolean savePositionHistory;
     private int positionHistoryFrequency;
     private int historyCount;
+
     private Robot robot;
     private TrafficManager manager;
+
     private boolean mobile;
     private boolean colocated;
     private boolean verbose;
+
     private TrafficArea startPosition;
 
     /**
      * Construct a TrafficAgent.
      *
-     * @param robot         The Robot wrapped by this object.
-     * @param manager       The traffic manager.
-     * @param radius        The radius of this agent in mm.
-     * @param velocityLimit The velicity limit.
+     * @param robot
+     *            The Human wrapped by this object.
+     * @param manager
+     *            The traffic manager.
+     * @param radius
+     *            The radius of this agent in mm.
+     * @param velocityLimit
+     *            The velicity limit.
      */
     public TrafficAgent(Robot robot, TrafficManager manager, double radius, double velocityLimit) {
         this.robot = robot;
@@ -89,9 +226,9 @@ public class TrafficAgent {
     }
 
     /**
-     * Get the Robot wrapped by this object.
+     * Get the Human wrapped by this object.
      *
-     * @return The wrapped Robot.
+     * @return The wrapped Human.
      */
     public Robot getRobot() {
         return robot;
@@ -109,7 +246,8 @@ public class TrafficAgent {
     /**
      * Set the maximum velocity of this agent.
      *
-     * @param vLimit The new maximum velocity.
+     * @param vLimit
+     *            The new maximum velocity.
      */
     public void setMaxVelocity(double vLimit) {
         velocityLimit = vLimit;
@@ -155,7 +293,8 @@ public class TrafficAgent {
      * Set the frequency of position history records. One record will be created
      * every nth microstep.
      *
-     * @param n The new frequency.
+     * @param n
+     *            The new frequency.
      */
     public void setPositionHistoryFrequency(int n) {
         positionHistoryFrequency = n;
@@ -164,7 +303,8 @@ public class TrafficAgent {
     /**
      * Enable or disable position history recording.
      *
-     * @param b True to enable position history recording, false otherwise.
+     * @param b
+     *            True to enable position history recording, false otherwise.
      */
     public void setPositionHistoryEnabled(boolean b) {
         savePositionHistory = b;
@@ -225,6 +365,16 @@ public class TrafficAgent {
     }
 
     /**
+     * Set the radius of this agent.
+     *
+     * @param r
+     *            The new radius in mm.
+     */
+    public void setRadius(double r) {
+        this.radius = r;
+    }
+
+    /**
      * Get the radius of this agent.
      *
      * @return The radius in mm.
@@ -234,18 +384,10 @@ public class TrafficAgent {
     }
 
     /**
-     * Set the radius of this agent.
-     *
-     * @param r The new radius in mm.
-     */
-    public void setRadius(double r) {
-        this.radius = r;
-    }
-
-    /**
      * Set the path this agent wants to take.
      *
-     * @param steps The new path.
+     * @param steps
+     *            The new path.
      */
     public void setPath1(List<PathElement> steps) {
         if (steps == null || steps.isEmpty()) {
@@ -311,8 +453,10 @@ public class TrafficAgent {
      * Set the location of this agent. This method will also update the position
      * history (if enabled).
      *
-     * @param x location x
-     * @param y location y
+     * @param x
+     *            location x
+     * @param y
+     *            location y
      */
     public void setLocation(double x, double y) {
         if (currentArea == null || !currentArea.contains(x, y)) {
@@ -391,7 +535,8 @@ public class TrafficAgent {
     /**
      * Execute a microstep.
      *
-     * @param dt The amount of time to simulate in ms.
+     * @param dt
+     *            The amount of time to simulate in ms.
      */
     public void step(double dt) {
         if (mobile) {
@@ -410,8 +555,8 @@ public class TrafficAgent {
     }
 
     private void handleOutOfActionCivilianMoves() {
-        //		if (!(getHuman() instanceof Civilian))
-        //			return;
+        if (!(getRobot() instanceof Drone))
+            return;
         if (currentArea.getArea().equals(startPosition.getArea()))
             return;
         if (!(currentArea.getArea() instanceof Building))
@@ -450,6 +595,16 @@ public class TrafficAgent {
     }
 
     /**
+     * Set whether this agent is mobile or not.
+     *
+     * @param m
+     *            True if this agent is mobile, false otherwise.
+     */
+    public void setMobile(boolean m) {
+        mobile = m;
+    }
+
+    /**
      * Find out if this agent is mobile.
      *
      * @return True if this agent is mobile.
@@ -459,18 +614,10 @@ public class TrafficAgent {
     }
 
     /**
-     * Set whether this agent is mobile or not.
-     *
-     * @param m True if this agent is mobile, false otherwise.
-     */
-    public void setMobile(boolean m) {
-        mobile = m;
-    }
-
-    /**
      * Turn verbose logging on or off.
      *
-     * @param b True for piles of debugging output, false for smaller piles.
+     * @param b
+     *            True for piles of debugging output, false for smaller piles.
      */
     public void setVerbose(boolean b) {
         verbose = b;
@@ -644,11 +791,11 @@ public class TrafficAgent {
         if (currentArea == null) {
             return false;
         }
-        //for (TrafficBlockade block : currentArea.getBlockades()) {
-        //	if (block.contains(location[0], location[1])) {
-        //		return true;
-        //	}
-        //}
+        for (TrafficBlockade block : currentArea.getBlockades()) {
+            if (block.contains(location[0], location[1])) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -708,7 +855,7 @@ public class TrafficAgent {
     private void updateWalls(double dt) {
         Point2D position = new Point2D(location[0], location[1]);
         double crossingCutoff = dt * this.velocityLimit;
-        double forceCutoff = TrafficConstants.getWallDistanceCutoff();
+        double forceCutoff = traffic4.simulator.TrafficConstants.getWallDistanceCutoff();
         double cutoff = Math.max(forceCutoff, crossingCutoff);
         // double dist;
 
@@ -861,6 +1008,7 @@ public class TrafficAgent {
         result[0] = xSum;
         result[1] = ySum;
     }
+
 
     private void computeWallsForce(double[] result, double dt) {
         double xSum = 0;
@@ -1016,116 +1164,5 @@ public class TrafficAgent {
     @Override
     public int hashCode() {
         return robot.getID().hashCode();
-    }
-
-    /**
-     * This class is used to compute and cache wall related information.
-     *
-     * @author goebelbe
-     */
-    private static class WallInfo {
-        private Line2D wall;
-        private TrafficArea area;
-        private double distance;
-        private Point2D closest;
-        private Point2D origin;
-        private Line2D line;
-        private Vector2D vector;
-        private boolean isBlockade;
-
-        /**
-         * Create a new WallInfo object from a Line2D in a TrafficArea.
-         *
-         * @param wall The wall to cache.
-         * @param area The area this wall belongs to.
-         */
-        public WallInfo(Line2D wall, TrafficArea area) {
-            this.wall = wall;
-            this.area = area;
-            this.distance = -1;
-            this.closest = null;
-            this.origin = null;
-        }
-
-        /**
-         * Get the shortest distance from the agent's position. The distance may
-         * not be accurate if the wall can't affect the agent in this microstep.
-         *
-         * @return The distance to the agent.
-         */
-        public double getDistance() {
-            return this.distance;
-        }
-
-        /**
-         * Recompute the distance to the agent and the closest point on the
-         * line.
-         *
-         * @param from The position of the agent.
-         */
-        public void computeClostestPoint(Point2D from) {
-            if (from.equals(origin) && distance >= 0 && closest != null) {
-                return;
-            }
-            origin = from;
-            closest = GeometryTools2D.getClosestPointOnSegment(wall, origin);
-            line = new Line2D(origin, closest);
-            vector = line.getDirection();
-            distance = vector.getLength();
-        }
-
-        /**
-         * Get the clostest point to the agent on the wall.
-         *
-         * @return The closest point.
-         */
-        public Point2D getClosestPoint() {
-            return closest;
-        }
-
-        /**
-         * Decrease the distance from the wall by an amount.
-         *
-         * @param d The amount by which to decrease the distance.
-         */
-        public void decreaseDistance(double d) {
-            distance -= d;
-        }
-
-        /**
-         * Get the wall this WallInfo represents.
-         *
-         * @return The wall.
-         */
-        public Line2D getWall() {
-            return wall;
-        }
-
-        /**
-         * Get the line from the agent to the closest point on the wall.
-         *
-         * @return Line2D to wall.
-         */
-        public Line2D getLine() {
-            return line;
-        }
-
-        /**
-         * Get the vector from the agent to the closest point on the wall.
-         *
-         * @return Vector2D to wall.
-         */
-        public Vector2D getVector() {
-            return vector;
-        }
-
-        /**
-         * Get the are the wall lies in.
-         *
-         * @return The area of this wall.
-         */
-        public TrafficArea getArea() {
-            return area;
-        }
     }
 }

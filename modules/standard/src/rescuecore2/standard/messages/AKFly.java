@@ -16,15 +16,12 @@ import rescuecore2.worldmodel.EntityID;
 
 public class AKFly extends AbstractCommand {
 
-    //private IntComponent height;
     private EntityIDListComponent path;
     private IntComponent x;
     private IntComponent y;
 
-
-
     /**
-     * An AKFly message that populates its data from a stream.
+     * An AKMove message that populates its data from a stream.
      *
      * @param in The InputStream to read.
      * @throws IOException If there is a problem reading the stream.
@@ -35,40 +32,36 @@ public class AKFly extends AbstractCommand {
     }
 
     /**
-     * Construct a fly command
+     * Construct a move command.
      *
-     * @param time The time the command was issued
-     * @param agent The ID of the agent issuing the command
-     * @param path The drone's path to fly.
-     *
+     * @param time  The time the command was issued.
+     * @param agent The ID of the agent issuing the command.
+     * @param path  The path to move.
      */
     public AKFly(EntityID agent, int time, List<EntityID> path) {
         this();
         setAgentID(agent);
         setTime(time);
-        //
         this.path.setIDs(path);
         this.x.setValue(-1);
         this.y.setValue(-1);
     }
 
     /**
-     * Construct a fly command.
+     * Construct a move command.
      *
-     * @param time
-     * @param agent
-     * @param path
-     * @param destinationX
-     * @param destinationY
-     * @param height
+     * @param time         The time the command was issued.
+     * @param agent        The ID of the agent issuing the command.
+     * @param path         The path to move.
+     * @param destinationX The X coordinate of the desired destination.
+     * @param destinationY The Y coordinate of the desired destination.
      */
     public AKFly(EntityID agent, int time, List<EntityID> path,
-                 int destinationX, int destinationY) {
+                  int destinationX, int destinationY) {
         this();
         setAgentID(agent);
         setTime(time);
         this.path.setIDs(path);
-//        this.height.setValue(height);
         this.x.setValue(destinationX);
         this.y.setValue(destinationY);
     }
@@ -78,9 +71,7 @@ public class AKFly extends AbstractCommand {
         path = new EntityIDListComponent(StandardMessageComponentURN.Path);
         x = new IntComponent(StandardMessageComponentURN.DestinationX);
         y = new IntComponent(StandardMessageComponentURN.DestinationY);
-//        height = new IntComponent(StandardMessageComponentURN.Height);
         addMessageComponent(path);
-//        addMessageComponent(height);
         addMessageComponent(x);
         addMessageComponent(y);
     }
@@ -90,39 +81,28 @@ public class AKFly extends AbstractCommand {
         fromMessageProto(proto);
     }
 
-
     /**
-     * Get the desired flight path.
+     * Get the desired movement path.
      *
-     * @return The flight path.
+     * @return The movement path.
      */
     public List<EntityID> getPath() {
         return path.getIDs();
     }
 
     /**
-     * Get the height of the drone.
+     * Get the destination X coordinate.
      *
-     * @return The height of the drone.
-     */
-//    public int getHeight() {
-//        return height.getValue();
-//    }
-
-    /**
-     * Get the x coordinate destination of the drone.
-     *
-     * @return The destination X coordinate
+     * @return The destination X coordination.
      */
     public int getDestinationX() {
         return x.getValue();
     }
 
-
     /**
-     * Get the Y coordinate destination of the drone.
+     * Get the destination Y coordinate.
      *
-     * @return The destination Y coordinate
+     * @return The destination Y coordination.
      */
     public int getDestinationY() {
         return y.getValue();
@@ -132,9 +112,9 @@ public class AKFly extends AbstractCommand {
     public JSONObject toJson() {
         JSONObject jsonObject = super.toJson();
         jsonObject.put("Path", this.getPath());
-        jsonObject.put("X:", this.getDestinationX());
-        jsonObject.put("Y:", this.getDestinationY());
-//        jsonObject.put("Height", this.getHeight());
+        jsonObject.put("X", this.getDestinationX());
+        jsonObject.put("Y", this.getDestinationX());
+
         return jsonObject;
     }
 

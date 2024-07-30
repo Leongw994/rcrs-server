@@ -276,7 +276,7 @@ public class TrafficSimulator extends StandardSimulator implements GUIComponent 
         case POLICE_FORCE:
         case CIVILIAN:
         case FIRE_BRIGADE:
-        case DRONE:
+//        case DRONE:
         case WORLD:
         default:
           break;
